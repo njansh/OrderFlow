@@ -1,0 +1,388 @@
+Eu montaria as issues já pensando em um backend que pareça trabalho de empresa, mas sem cair no erro do MyFinance de ficar expandindo infinitamente.
+
+# Milestone: MVP v1
+
+Objetivo: sistema funcional para gerenciamento de pedidos.
+
+---
+
+## Setup
+
+### #1 Setup Spring Boot Project
+
+**Acceptance Criteria**
+
+* Java 21 ou 17
+* Maven
+* Estrutura modular criada
+* Aplicação sobe
+
+---
+
+### #2 Configure PostgreSQL
+
+**Acceptance Criteria**
+
+* Docker Compose
+* Banco conectado
+* Aplicação inicia sem erros
+
+---
+
+### #3 Configure Flyway
+
+**Acceptance Criteria**
+
+* Primeira migration criada
+* Banco versionado
+
+---
+
+### #4 Configure Spring Security
+
+**Acceptance Criteria**
+
+* Rotas públicas e privadas
+* JWT configurado
+
+---
+
+# Authentication
+
+### #5 Create User Entity
+
+**Acceptance Criteria**
+
+* id
+* name
+* email
+* password
+* role
+
+---
+
+### #6 Create Users Migration
+
+---
+
+### #7 Implement Signup
+
+**Acceptance Criteria**
+
+* email único
+* senha criptografada
+* usuário salvo
+
+---
+
+### #8 Implement Login
+
+**Acceptance Criteria**
+
+* autenticação
+* geração JWT
+
+---
+
+### #9 Implement Current User Endpoint
+
+```http
+GET /me
+```
+
+---
+
+# Products
+
+### #10 Create Product Entity
+
+**Acceptance Criteria**
+
+* id
+* name
+* price
+
+---
+
+### #11 Create Products Migration
+
+---
+
+### #12 Create Product
+
+```http
+POST /products
+```
+
+---
+
+### #13 List Products
+
+```http
+GET /products
+```
+
+---
+
+### #14 Get Product By Id
+
+```http
+GET /products/{id}
+```
+
+---
+
+### #15 Update Product
+
+```http
+PUT /products/{id}
+```
+
+---
+
+### #16 Delete Product
+
+```http
+DELETE /products/{id}
+```
+
+---
+
+# Orders
+
+### #17 Create Order Entity
+
+**Acceptance Criteria**
+
+* id
+* status
+* total
+* createdAt
+
+---
+
+### #18 Create OrderItem Entity
+
+**Acceptance Criteria**
+
+* product
+* quantity
+* unitPrice
+
+---
+
+### #19 Create Orders Migration
+
+---
+
+### #20 Create Order Items Migration
+
+---
+
+### #21 Implement Create Order
+
+```http
+POST /orders
+```
+
+**Acceptance Criteria**
+
+* adicionar produtos
+* calcular total automaticamente
+
+---
+
+### #22 Implement List Orders
+
+```http
+GET /orders
+```
+
+---
+
+### #23 Implement Get Order
+
+```http
+GET /orders/{id}
+```
+
+---
+
+### #24 Implement Orders By Status
+
+```http
+GET /orders?status=PENDING
+```
+
+---
+
+# Order Workflow
+
+### #25 Create Order Status Enum
+
+```text
+PENDING
+PREPARING
+OUT_FOR_DELIVERY
+COMPLETED
+```
+
+---
+
+### #26 Implement Update Order Status
+
+```http
+PATCH /orders/{id}/status
+```
+
+---
+
+### #27 Validate Status Transitions
+
+**Acceptance Criteria**
+
+Permitido:
+
+```text
+PENDING -> PREPARING
+PREPARING -> OUT_FOR_DELIVERY
+OUT_FOR_DELIVERY -> COMPLETED
+```
+
+Bloquear:
+
+```text
+PENDING -> COMPLETED
+PENDING -> OUT_FOR_DELIVERY
+PREPARING -> COMPLETED
+```
+
+---
+
+# Authorization
+
+### #28 Create Role Enum
+
+```text
+ADMIN
+ATTENDANT
+KITCHEN
+DELIVERY
+```
+
+---
+
+### #29 Restrict Product Management To Admin
+
+---
+
+### #30 Restrict Status Changes By Role
+
+**Acceptance Criteria**
+
+ATTENDANT:
+
+```text
+cria pedidos
+```
+
+KITCHEN:
+
+```text
+PREPARING
+```
+
+DELIVERY:
+
+```text
+OUT_FOR_DELIVERY
+COMPLETED
+```
+
+---
+
+# Error Handling
+
+### #31 Create Custom Exceptions
+
+Exemplos:
+
+```text
+UserNotFoundException
+OrderNotFoundException
+ProductNotFoundException
+BusinessRuleException
+```
+
+---
+
+### #32 Create Global Exception Handler
+
+---
+
+# Testing
+
+### #33 Unit Tests Authentication
+
+---
+
+### #34 Unit Tests Products
+
+---
+
+### #35 Unit Tests Orders
+
+---
+
+### #36 Unit Tests Status Validation
+
+---
+
+### #37 Controller Tests
+
+---
+
+# Documentation
+
+### #38 Configure OpenAPI / Swagger
+
+---
+
+### #39 Document Endpoints
+
+---
+
+### #40 Create README
+
+---
+
+# Final Hardening
+
+### #41 Code Review
+
+---
+
+### #42 Refactor Duplicated Code
+
+---
+
+### #43 Verify Test Coverage > 80%
+
+---
+
+### #44 MVP Release v1.0
+
+**Definition of Done**
+
+* Login funcionando
+* Produtos funcionando
+* Pedidos funcionando
+* Fluxo completo funcionando
+* Permissões funcionando
+* Testes passando
+* Swagger funcionando
+* README pronto
+
+---
+
+Esse conjunto de **44 issues** é mais ou menos o que eu esperaria de um backend MVP profissional. Se você seguir isso até o fim sem adicionar dashboard, relatórios, notificações, pagamentos, WebSocket, etc., vai terminar um projeto muito sólido em algumas semanas em vez de cair novamente num projeto de 6 meses de expansão contínua como aconteceu com o MyFinance.
