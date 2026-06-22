@@ -33,7 +33,7 @@ public class User {
             throw new BusinessRuleException("email can't be null or blank");
         }
 
-        if (!email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+        if (!email.matches("^[\\w._%+-]+@[\\w.-]+\\.[A-Za-z]{2,}$")) {
             throw new BusinessRuleException("email must be a valid format");
         }
 
