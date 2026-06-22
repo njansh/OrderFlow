@@ -21,8 +21,8 @@ Allow attendants, kitchen staff and delivery staff to manage orders through thei
 ## Backend Progress
 
 ### Setup & Infrastructure
-- [ ] #1 Setup Spring Boot Project
-- [ ] #2 Configure PostgreSQL
+- [x] #1 Setup Spring Boot Project
+- [x] #2 Configure PostgreSQL
 - [ ] #3 Configure Flyway
 - [ ] #4 Configure Spring Security
 
