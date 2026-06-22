@@ -58,6 +58,7 @@ Objetivo: sistema funcional para gerenciamento de pedidos.
 * email
 * password
 * role
+* newly registered users start as GUEST
 
 ---
 
@@ -72,6 +73,7 @@ Objetivo: sistema funcional para gerenciamento de pedidos.
 * email único
 * senha criptografada
 * usuário salvo
+* usuário criado com role GUEST
 
 ---
 
@@ -268,7 +270,10 @@ ADMIN
 ATTENDANT
 KITCHEN
 DELIVERY
+GUEST
 ```
+
+GUEST representa um usuário autenticado sem permissões operacionais. Apenas ADMIN pode promover um GUEST para outra role.
 
 ---
 
@@ -297,6 +302,12 @@ DELIVERY:
 ```text
 OUT_FOR_DELIVERY
 COMPLETED
+```
+
+GUEST:
+
+```text
+sem permissões operacionais
 ```
 
 ---
