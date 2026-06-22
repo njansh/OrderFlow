@@ -10,6 +10,9 @@ Allow attendants, kitchen staff and delivery staff to manage orders through thei
 - ATTENDANT
 - KITCHEN
 - DELIVERY
+- GUEST
+
+Newly registered users start as GUEST and must be promoted by an ADMIN before receiving operational permissions.
 
 ## Order Status
 
