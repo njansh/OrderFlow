@@ -1,15 +1,17 @@
-package com.nadson.orderflow.modules.users;
+package com.nadson.orderflow.modules.users.usecase;
 
+import com.nadson.orderflow.modules.users.domain.User;
+import com.nadson.orderflow.modules.users.domain.UserRepository;
 import com.nadson.orderflow.shared.exception.UserAlreadyExists;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class SingUpUseCase {
-    private final UserReposity repo;
+    private final UserRepository repo;
     private final PasswordEncoder passwordEncoder;
 
-    public SingUpUseCase(UserReposity repo, PasswordEncoder passwordEncoder) {
+    public SingUpUseCase(UserRepository repo, PasswordEncoder passwordEncoder) {
         this.repo = repo;
         this.passwordEncoder = passwordEncoder;
     }

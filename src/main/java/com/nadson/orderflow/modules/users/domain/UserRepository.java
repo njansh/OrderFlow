@@ -1,11 +1,12 @@
-package com.nadson.orderflow.modules.users;
+package com.nadson.orderflow.modules.users.domain;
 
+import java.util.List;
 import java.util.UUID;
 
-public interface UserReposity {
+public interface UserRepository {
     User save(User user);
     User getUserByName(String username);
     User getUserByEmail(String email);
     User getUserById(UUID id);
-    User listUsers();
+    List<User> listUsers();
 }

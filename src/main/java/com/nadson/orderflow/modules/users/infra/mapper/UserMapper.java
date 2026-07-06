@@ -1,8 +1,10 @@
-package com.nadson.orderflow.modules.infra.mapper.users;
+package com.nadson.orderflow.modules.users.infra.mapper;
 
-import com.nadson.orderflow.modules.infra.persistence.users.UserEntity;
-import com.nadson.orderflow.modules.users.User;
+import com.nadson.orderflow.modules.users.domain.User;
+import com.nadson.orderflow.modules.users.infra.persistence.UserEntity;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UserMapper {
     public UserEntity toEntity(User user) {
         if (user == null) {

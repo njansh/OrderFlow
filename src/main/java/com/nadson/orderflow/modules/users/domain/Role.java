@@ -1,4 +1,4 @@
-package com.nadson.orderflow.modules.users;
+package com.nadson.orderflow.modules.users.domain;
 
 public enum Role {
     ADMIN,
