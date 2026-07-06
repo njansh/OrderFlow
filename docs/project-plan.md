@@ -26,12 +26,12 @@ Newly registered users start as GUEST and must be promoted by an ADMIN before re
 ### Setup & Infrastructure
 - [x] #1 Setup Spring Boot Project
 - [x] #2 Configure PostgreSQL
-- [ ] #3 Configure Flyway
-- [ ] #4 Configure Spring Security
+- [x] #3 Configure Flyway
+- [x] #4 Configure Spring Security
 
 ### Authentication
-- [ ] #5 Create User Entity
-- [ ] #6 Create Users Migration
+- [x] #5 Create User Entity
+- [x] #6 Create Users Migration
 - [ ] #7 Implement Signup
 - [ ] #8 Implement Login
 - [ ] #9 Implement Current User Endpoint
