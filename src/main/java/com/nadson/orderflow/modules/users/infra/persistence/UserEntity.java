@@ -1,7 +1,6 @@
-package com.nadson.orderflow.modules.infra.persistence.users;
-
-import com.nadson.orderflow.modules.users.Role;
-import com.nadson.orderflow.modules.users.User;
+package com.nadson.orderflow.modules.users.infra.persistence;
+import com.nadson.orderflow.modules.users.domain.Role;
+import com.nadson.orderflow.modules.users.domain.User;
 import jakarta.persistence.*;
 
 @Entity
