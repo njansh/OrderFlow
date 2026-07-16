@@ -1,6 +1,7 @@
 package com.nadson.orderflow.modules.products.domain;
 
 import com.nadson.orderflow.shared.exception.BusinessRuleException;
+
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -23,6 +24,14 @@ public class Product {
         if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) {
             throw new BusinessRuleException("Product price must be greater than zero");
         }
+    }
+
+    public void update(String name, BigDecimal price) {
+        validate(name, price);
+        this.name = name;
+        this.price = price;
+
+
     }
 
     public UUID getId() {

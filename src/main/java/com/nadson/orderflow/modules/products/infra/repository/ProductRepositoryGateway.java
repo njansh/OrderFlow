@@ -39,4 +39,20 @@ return repository.findAllByName(name).stream().map(mapper::toDomain).toList();  
     public List<Product> listProducts() {
         return repository.findAll().stream().map(mapper::toDomain).toList();
     }
+
+    @Override
+    public Product update(Product product) {
+        ProductEntity entity= mapper.toEntity(product);
+        ProductEntity saved = repository.save(entity);
+        return mapper.toDomain(saved);
+    }
+
+    @Override
+    public void delete(UUID id) {
+        repository.deleteById(id);
+
+    }
+
+
+
 }

@@ -6,8 +6,9 @@ import java.util.UUID;
 public interface ProductRepository {
     Product save (Product product);
     Product getProductById(UUID id);
+
     List<Product> getProductByName(String name);
     List<Product> listProducts();
-
-
+    Product update(Product product);
+    void delete(UUID id);
 }
