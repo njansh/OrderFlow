@@ -7,5 +7,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface SpringDataProductRepository extends JpaRepository<ProductEntity, UUID> {
-    List<ProductEntity> findAllByName (String name);
+    List<ProductEntity> findAllByName(String name);
+
 }
