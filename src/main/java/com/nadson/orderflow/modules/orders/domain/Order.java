@@ -13,7 +13,7 @@ public class Order {
     private final UUID id;
     private final List<OrderItem> items;
     private final LocalDateTime createdAt;
-    private OrderStatus status;
+    private       OrderStatus status;
 
     public Order(List<OrderItem> items) {
         validate(items);
@@ -22,7 +22,17 @@ public class Order {
         this.status = OrderStatus.PENDING;
         this.createdAt = LocalDateTime.now();
     }
+    public Order(UUID id, List<OrderItem> items, LocalDateTime createdAt, OrderStatus status) {
+        validate(items);
+        if (id == null) throw new BusinessRuleException("Id cannot be null");
+        if (createdAt == null) throw new BusinessRuleException("CreatedAt cannot be null");
+        if (status == null) throw new BusinessRuleException("Status cannot be null");
 
+        this.id = id;
+        this.items = items;
+        this.createdAt = createdAt;
+        this.status = status;
+    }
     private void validate(List<OrderItem> items) {
         if (items == null || items.isEmpty()) {
             throw new BusinessRuleException("Order must have at least one item.");

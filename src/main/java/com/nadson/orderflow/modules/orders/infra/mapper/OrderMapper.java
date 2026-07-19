@@ -7,18 +7,23 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
 @Component
 public class OrderMapper {
+
+    private final OrderItemMapper itemMapper;
+
+    public OrderMapper(OrderItemMapper itemMapper) {
+        this.itemMapper = itemMapper;
+    }
+
     public Order toDomain(OrderEntity entity) {
         if (entity == null) {
             return null;
-        }        List<OrderItem> items = entity.getItems().stream()
-                .map(item -> new OrderItem(
-                        item.getProductId(),
-                        item.getProductName(),
-                        item.getQuantity(),
-                        item.getPrice()
-                ))
+        }
+
+        List<OrderItem> items = entity.getItems().stream()
+                .map(itemMapper::toDomain)
                 .collect(Collectors.toList());
 
         return new Order(
