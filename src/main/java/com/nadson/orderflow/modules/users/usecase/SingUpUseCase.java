@@ -25,7 +25,12 @@ public class SingUpUseCase {
 
         String passwordHash = this.passwordEncoder.encode(senha);
 
-        User user = User.createGuest(name, email, passwordHash);
+        User user;
+        if (this.repo.listUsers().isEmpty()) {
+            user = User.createAdmin(name, email, passwordHash);
+        } else {
+            user = User.createGuest(name, email, passwordHash);
+        }
 
         return this.repo.save(user);
     }

@@ -24,6 +24,10 @@ public class User {
         return new User(null, name, email, password, Role.GUEST);
     }
 
+    public static User createAdmin(String name, String email, String passwordHash) {
+        return new User(null, name, email, passwordHash, Role.ADMIN);
+    }
+
     private void validate(String name, String email, String password, Role role) {
         if (name == null || name.isBlank()) {
             throw new BusinessRuleException("name can't be null or blank");
