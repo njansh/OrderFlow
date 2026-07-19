@@ -1,12 +1,12 @@
 package com.nadson.orderflow.modules.users.infra.controller;
 
+import com.nadson.orderflow.modules.users.domain.Role;
 import com.nadson.orderflow.modules.users.domain.User;
 import com.nadson.orderflow.modules.users.domain.UserRepository;
-import com.nadson.orderflow.modules.users.infra.controller.dto.LoginRequest;
-import com.nadson.orderflow.modules.users.infra.controller.dto.LoginResponse;
-import com.nadson.orderflow.modules.users.infra.controller.dto.SingUpRequest;
-import com.nadson.orderflow.modules.users.infra.controller.dto.UserResponse;
+import com.nadson.orderflow.modules.users.infra.controller.dto.*;
 import com.nadson.orderflow.modules.users.usecase.SingUpUseCase;
+import com.nadson.orderflow.modules.users.usecase.UpdateUserUseCase;
+import com.nadson.orderflow.shared.exception.BusinessRuleException;
 import com.nadson.orderflow.shared.security.TokenService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -16,6 +16,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -23,15 +25,17 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
     private final UserRepository userRepository;
+    private final UpdateUserUseCase updateUserUseCase;
 
     public AuthController(SingUpUseCase singUpUseCase,
                           AuthenticationManager authenticationManager,
                           TokenService tokenService,
-                          UserRepository userRepository) {
+                          UserRepository userRepository, UpdateUserUseCase updateUserUseCase) {
         this.singUpUseCase = singUpUseCase;
         this.authenticationManager = authenticationManager;
         this.tokenService = tokenService;
         this.userRepository = userRepository;
+        this.updateUserUseCase = updateUserUseCase;
     }
 
     @PostMapping("/signup")
@@ -59,4 +63,29 @@ public class AuthController {
         User user = userRepository.getUserByEmail(authentication.getName());
         return UserResponse.fromDomain(user);
     }
-}
+    @PutMapping("/users")
+    public UserResponse update(@RequestBody @Valid UpdateUserRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = userRepository.getUserByEmail(authentication.getName());
+
+        UUID targetUserId = request.id() != null ? request.id() : currentUser.getId();
+
+        User targetUser = userRepository.getUserById(targetUserId);
+        if (targetUser == null) {
+            throw new BusinessRuleException("Target user not found");
+        }
+
+          Role finalRole = targetUser.getRole();
+        if (request.role() != null && currentUser.getRole() == Role.ADMIN) {
+            finalRole = Role.valueOf(request.role().toUpperCase());
+        }
+
+        UpdateUserUseCase.UserUpdateInput input = new UpdateUserUseCase.UserUpdateInput(
+                targetUserId,
+                request.name(),
+                request.email(),
+                finalRole
+        );
+
+        User updatedUser = updateUserUseCase.execute(input, currentUser);
+        return UserResponse.fromDomain(updatedUser);}}
