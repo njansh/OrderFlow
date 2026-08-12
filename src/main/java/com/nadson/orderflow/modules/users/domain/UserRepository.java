@@ -9,4 +9,5 @@ public interface UserRepository {
     User getUserByEmail(String email);
     User getUserById(UUID id);
     List<User> listUsers();
+    User update(User user);
 }

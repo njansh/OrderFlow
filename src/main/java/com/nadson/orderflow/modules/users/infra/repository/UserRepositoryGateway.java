@@ -54,4 +54,11 @@ public class UserRepositoryGateway implements UserRepository {
                 .map(mapper::toDomain)
                 .toList();
     }
+
+    @Override
+    public User update(User user) {
+        UserEntity entity = mapper.toEntity(user);
+        UserEntity saved = repo.save(entity);
+        return mapper.toDomain(saved);
+    }
 }
