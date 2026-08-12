@@ -43,11 +43,11 @@ public class GetOrderByIdUseCase {
         OrderStatus status = order.getStatus();
 
         if (role == Role.DELIVERY) {
-            if (status != OrderStatus.OUT_FOR_DELIVERY && status != OrderStatus.DELIVERED) {
-                throw new BusinessRuleException("Delivery drivers can only access orders that are out for delivery or delivered.");
+            if (status != OrderStatus.OUT_FOR_DELIVERY && status != OrderStatus.COMPLETED) {
+                throw new BusinessRuleException("Delivery drivers can only access orders that are out for delivery or COMPLETED.");
             }
         } else if (role == Role.ATTENDANT) {
-            if (status == OrderStatus.OUT_FOR_DELIVERY || status == OrderStatus.DELIVERED) {
+            if (status == OrderStatus.OUT_FOR_DELIVERY || status == OrderStatus.COMPLETED) {
                 throw new BusinessRuleException("Attendants cannot access orders currently in the delivery process.");
             }
         } else if (role == Role.KITCHEN) {

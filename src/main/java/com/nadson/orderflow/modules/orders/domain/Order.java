@@ -62,14 +62,11 @@ public class Order {
             if (userRole == Role.ATTENDANT || userRole == Role.GUEST) {
                 throw new BusinessRuleException("Attendants and guests cannot deliver orders.");
             }
-        } else if (this.status == OrderStatus.OUT_FOR_DELIVERY && newStatus == OrderStatus.DELIVERED) {
+        } else if (this.status == OrderStatus.OUT_FOR_DELIVERY && newStatus == OrderStatus.COMPLETED) {
             if (userRole != Role.DELIVERY && userRole != Role.ADMIN) {
                 throw new BusinessRuleException("Only delivery personnel or admins can mark orders as delivered.");
             }
-        } else if (this.status == OrderStatus.DELIVERED && newStatus == OrderStatus.COMPLETED) {
-            if (userRole != Role.ATTENDANT && userRole != Role.ADMIN) {
-                throw new BusinessRuleException("Only attendants or admins can complete orders.");
-            }
+
         } else {
             throw new BusinessRuleException("Invalid status transition.");
         }

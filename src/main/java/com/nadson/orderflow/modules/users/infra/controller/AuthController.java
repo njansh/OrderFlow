@@ -4,6 +4,7 @@ import com.nadson.orderflow.modules.users.domain.Role;
 import com.nadson.orderflow.modules.users.domain.User;
 import com.nadson.orderflow.modules.users.domain.UserRepository;
 import com.nadson.orderflow.modules.users.infra.controller.dto.*;
+import com.nadson.orderflow.modules.users.usecase.ListUsersUseCase;
 import com.nadson.orderflow.modules.users.usecase.SingUpUseCase;
 import com.nadson.orderflow.modules.users.usecase.UpdateUserUseCase;
 import com.nadson.orderflow.shared.exception.BusinessRuleException;
@@ -16,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -26,16 +28,18 @@ public class AuthController {
     private final TokenService tokenService;
     private final UserRepository userRepository;
     private final UpdateUserUseCase updateUserUseCase;
+    private final ListUsersUseCase listUsersUseCase;
 
     public AuthController(SingUpUseCase singUpUseCase,
                           AuthenticationManager authenticationManager,
                           TokenService tokenService,
-                          UserRepository userRepository, UpdateUserUseCase updateUserUseCase) {
+                          UserRepository userRepository, UpdateUserUseCase updateUserUseCase, ListUsersUseCase listUsersUseCase) {
         this.singUpUseCase = singUpUseCase;
         this.authenticationManager = authenticationManager;
         this.tokenService = tokenService;
         this.userRepository = userRepository;
         this.updateUserUseCase = updateUserUseCase;
+        this.listUsersUseCase = listUsersUseCase;
     }
 
     @PostMapping("/signup")
@@ -62,6 +66,19 @@ public class AuthController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.getUserByEmail(authentication.getName());
         return UserResponse.fromDomain(user);
+    }
+    @GetMapping("/users")
+    public List<UserResponse> listUsers() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = userRepository.getUserByEmail(authentication.getName());
+
+        if (currentUser.getRole() != Role.ADMIN) {
+            throw new BusinessRuleException("Only admins can list all users.");
+        }
+
+        return listUsersUseCase.execute().stream()
+                .map(UserResponse::fromDomain)
+                .toList();
     }
     @PutMapping("/users")
     public UserResponse update(@RequestBody @Valid UpdateUserRequest request) {

@@ -4,7 +4,7 @@ import com.nadson.orderflow.modules.orders.domain.OrderItem;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -14,6 +14,11 @@ import java.util.UUID;
 public class OrderItemEntity {
     @Id
     private UUID id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private OrderEntity order;
+
 
     @Column(name = "product_id", nullable = false)
     private UUID productId;
@@ -36,6 +41,9 @@ public class OrderItemEntity {
         this.productName = item.getProductName();
         this.quantity = item.getQuantity();
         this.price = item.getPrice();
+    }
+    public void setOrder(OrderEntity order) {
+        this.order = order;
     }
 
     public UUID getId() {

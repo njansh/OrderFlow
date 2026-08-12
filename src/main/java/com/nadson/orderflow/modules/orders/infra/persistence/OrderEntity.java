@@ -34,8 +34,16 @@ public class OrderEntity {
         this.status = order.getStatus();
         this.createdAt = order.getCreatedAt();
         this.items = order.getItems().stream()
-                .map(OrderItemEntity::new)
+                .map(item -> {
+                    OrderItemEntity itemEntity = new OrderItemEntity(item);
+                    itemEntity.setOrder(this);
+                    return itemEntity;
+                })
                 .collect(Collectors.toList());
+    }
+
+    public void setStatus(OrderStatus status) {
+        this.status = status;
     }
 
     public UUID getId() {

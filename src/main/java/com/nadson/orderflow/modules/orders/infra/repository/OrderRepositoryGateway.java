@@ -44,11 +44,17 @@ public class OrderRepositoryGateway implements OrderRepository {
                 .map(mapper::toDomain)
                 .collect(Collectors.toList());
     }
-
     @Override
     public Order update(Order order) {
-        return mapper.toDomain(repo.save(mapper.toEntity(order)));
+        OrderEntity existingEntity = repo.findById(order.getId())
+                .orElseThrow(() -> new RuntimeException("Order entity not found"));
+
+        existingEntity.setStatus(order.getStatus());
+
+        OrderEntity saved = repo.save(existingEntity);
+        return mapper.toDomain(saved);
     }
+
 
     @Override
     public void delete(UUID id) {
