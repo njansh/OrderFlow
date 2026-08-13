@@ -2,17 +2,29 @@ package com.nadson.orderflow.modules.products.usecase;
 
 import com.nadson.orderflow.modules.products.domain.Product;
 import com.nadson.orderflow.modules.products.domain.ProductRepository;
+import com.nadson.orderflow.modules.users.domain.Role;
+import com.nadson.orderflow.modules.users.domain.User;
+import com.nadson.orderflow.modules.users.domain.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 @Service
 public class CreateProductUseCase {
-    private final ProductRepository repo;
-    public CreateProductUseCase(ProductRepository repo) {
-        this.repo = repo;
+    private final ProductRepository productRepository;
+    private final UserRepository userRepository;
+    public CreateProductUseCase(ProductRepository productRepository, UserRepository userRepository) {
+        this.productRepository = productRepository;
+        this.userRepository = userRepository;
     }
-    public Product execute(String name, BigDecimal price) {
+    public Product execute(String name, BigDecimal price, User authenticatedUser) {
+        User user = userRepository.getUserById(authenticatedUser.getId());
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+        if (user.getRole() != Role.ADMIN) {
+            throw new RuntimeException("Only admins can create products");
+        }
         Product product = new Product(null, name, price);
-        return repo.save(product);
+        return productRepository.save(product);
     }
 }
