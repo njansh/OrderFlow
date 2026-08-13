@@ -23,10 +23,10 @@ public class UpdateProductUseCase {
     public Product execute(UUID id, String name, BigDecimal price, User authenticatedUser) {
         User user = userRepository.getUserById(authenticatedUser.getId());
         if (user == null) {
-            throw new RuntimeException("User not found");
+            throw new BusinessRuleException("User not found");
         }
         if (user.getRole() != Role.ADMIN) {
-            throw new RuntimeException("Only admins can update products");
+            throw new BusinessRuleException("Only admins can update products");
         }
         var product= productRepository.getProductById(id);
         if (product == null) {
@@ -37,4 +37,5 @@ public class UpdateProductUseCase {
 
         return product;
     }
+
 }

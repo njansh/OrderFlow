@@ -21,10 +21,10 @@ public class DeleteProductUseCase {
     public void execute(UUID id, User authenticatedUser) {
         User user = userRepository.getUserById(authenticatedUser.getId());
         if (user == null) {
-            throw new RuntimeException("User not found");
+            throw new BusinessRuleException("User not found");
         }
         if (user.getRole() != Role.ADMIN) {
-            throw new RuntimeException("Only admins can delete products");
+            throw new BusinessRuleException("Only admins can delete products");
         }
        if(productRepository.getProductById(id) == null) {
            throw new BusinessRuleException("Product not found");

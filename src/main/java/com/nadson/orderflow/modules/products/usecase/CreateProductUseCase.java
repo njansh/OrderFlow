@@ -5,6 +5,7 @@ import com.nadson.orderflow.modules.products.domain.ProductRepository;
 import com.nadson.orderflow.modules.users.domain.Role;
 import com.nadson.orderflow.modules.users.domain.User;
 import com.nadson.orderflow.modules.users.domain.UserRepository;
+import com.nadson.orderflow.shared.exception.BusinessRuleException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -19,10 +20,10 @@ public class CreateProductUseCase {
     public Product execute(String name, BigDecimal price, User authenticatedUser) {
         User user = userRepository.getUserById(authenticatedUser.getId());
         if (user == null) {
-            throw new RuntimeException("User not found");
+            throw new BusinessRuleException("User not found");
         }
         if (user.getRole() != Role.ADMIN) {
-            throw new RuntimeException("Only admins can create products");
+            throw new BusinessRuleException("Only admins can create products");
         }
         Product product = new Product(null, name, price);
         return productRepository.save(product);
