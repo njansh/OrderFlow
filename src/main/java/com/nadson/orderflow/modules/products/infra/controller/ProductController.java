@@ -6,6 +6,10 @@ import com.nadson.orderflow.modules.products.infra.controller.dto.ProductRespons
 import com.nadson.orderflow.modules.products.usecase.*;
 import com.nadson.orderflow.modules.users.domain.User;
 import com.nadson.orderflow.modules.users.domain.UserRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -15,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name = "Products", description = "Endpoints for managing the product catalog")
 @RestController
 @RequestMapping("/products")
 public class ProductController {
@@ -49,6 +54,11 @@ public class ProductController {
         return userRepository.getUserByEmail(authentication.getName());
     }
 
+    @Operation(summary = "Create product", description = "Creates a new product in the catalog. Requires ADMIN role.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Product created successfully"),
+            @ApiResponse(responseCode = "400", description = "Unauthorized role or invalid input")
+    })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ProductResponse create(@RequestBody @Valid CreateProductRequest request) {
@@ -57,6 +67,7 @@ public class ProductController {
         return new ProductResponse(product.getId(), product.getName(), product.getPrice());
     }
 
+    @Operation(summary = "List products", description = "Returns all products or filters by name if search query is provided.")
     @GetMapping
     public List<ProductResponse> list(@RequestParam(required = false) String name) {
         if (name != null && !name.isBlank()) {
@@ -71,12 +82,14 @@ public class ProductController {
         }
     }
 
+    @Operation(summary = "Get product by ID", description = "Retrieves product details by its unique UUID.")
     @GetMapping("/{id}")
     public ProductResponse getById(@PathVariable UUID id) {
         Product product = getProductByIdUseCase.execute(id);
         return new ProductResponse(product.getId(), product.getName(), product.getPrice());
     }
 
+    @Operation(summary = "Update product", description = "Updates product name and price. Requires ADMIN role.")
     @PutMapping("/{id}")
     public ProductResponse update(@PathVariable UUID id, @RequestBody @Valid CreateProductRequest request) {
         User currentUser = getAuthenticatedUser();
@@ -84,6 +97,7 @@ public class ProductController {
         return new ProductResponse(product.getId(), product.getName(), product.getPrice());
     }
 
+    @Operation(summary = "Delete product", description = "Deletes a product by its ID. Requires ADMIN role.")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id) {
