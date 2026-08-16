@@ -6,7 +6,6 @@ import com.nadson.orderflow.modules.orders.domain.OrderRepository;
 import com.nadson.orderflow.modules.orders.domain.OrderStatus;
 import com.nadson.orderflow.modules.users.domain.Role;
 import com.nadson.orderflow.modules.users.domain.User;
-import com.nadson.orderflow.modules.users.domain.UserRepository;
 import com.nadson.orderflow.shared.exception.BusinessRuleException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,9 +26,6 @@ class OrderStatusValidationTest {
 
     @Mock
     private OrderRepository orderRepo;
-
-    @Mock
-    private UserRepository userRepo;
 
     private UpdateOrderUseCase updateOrderUseCase;
 
@@ -53,7 +49,6 @@ class OrderStatusValidationTest {
     @Test
     void shouldAllowKitchenToAdvanceOrderToPreparing() {
         when(orderRepo.getOrderById(pendingOrder.getId())).thenReturn(pendingOrder);
-        when(userRepo.getUserById(kitchenUser.getId())).thenReturn(kitchenUser);
         when(orderRepo.update(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         Order updatedOrder = updateOrderUseCase.execute(pendingOrder.getId(), "PREPARING", kitchenUser);
@@ -65,7 +60,6 @@ class OrderStatusValidationTest {
     @Test
     void shouldAllowAttendantToCancelPendingOrder() {
         when(orderRepo.getOrderById(pendingOrder.getId())).thenReturn(pendingOrder);
-        when(userRepo.getUserById(attendantUser.getId())).thenReturn(attendantUser);
         when(orderRepo.update(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         Order updatedOrder = updateOrderUseCase.execute(pendingOrder.getId(), "CANCELED", attendantUser);
@@ -77,7 +71,6 @@ class OrderStatusValidationTest {
     @Test
     void shouldBlockDeliveryUserFromAdvancingOrderToPreparing() {
         when(orderRepo.getOrderById(pendingOrder.getId())).thenReturn(pendingOrder);
-        when(userRepo.getUserById(deliveryUser.getId())).thenReturn(deliveryUser);
 
         assertThrows(BusinessRuleException.class, () ->
                 updateOrderUseCase.execute(pendingOrder.getId(), "PREPARING", deliveryUser)
@@ -89,7 +82,6 @@ class OrderStatusValidationTest {
     @Test
     void shouldThrowExceptionForInvalidStatusTransition() {
         when(orderRepo.getOrderById(pendingOrder.getId())).thenReturn(pendingOrder);
-        when(userRepo.getUserById(deliveryUser.getId())).thenReturn(deliveryUser);
 
         assertThrows(BusinessRuleException.class, () ->
                 updateOrderUseCase.execute(pendingOrder.getId(), "DELIVERED", deliveryUser)
