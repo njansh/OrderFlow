@@ -14,22 +14,14 @@ import java.util.List;
 @Service
 public class GetOrderByStatusUseCase {
     private final OrderRepository repo;
-    private final UserRepository userRepository;
 
-    public GetOrderByStatusUseCase(OrderRepository repo, UserRepository userRepository) {
+    public GetOrderByStatusUseCase(OrderRepository repo) {
         this.repo = repo;
-        this.userRepository = userRepository;
     }
 
-    public List<Order> execute(OrderStatus status, User user) {
-        var userAuth = userRepository.getUserById(user.getId());
-        if (userAuth == null) {
-            throw new BusinessRuleException("User not found");
-        }
+    public List<Order> execute(OrderStatus status, User authenticatedUser) {
 
-        if (userAuth.getRole() != Role.ADMIN) {
-            throw new BusinessRuleException("Only admins can list orders by status.");
-        }
+        authenticatedUser.requireAdmin();
 
         return repo.getOrdersByStatus(status);
     }

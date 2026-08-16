@@ -112,7 +112,7 @@ class AuthControllerTest {
         User guestUser = new User(UUID.randomUUID(), "Guest", "guest@orderflow.com", "password123", Role.GUEST);
 
         when(userRepository.getUserByEmail("admin@orderflow.com")).thenReturn(adminUser);
-        when(listUsersUseCase.execute()).thenReturn(List.of(adminUser, guestUser));
+        when(listUsersUseCase.execute(adminUser)).thenReturn(List.of(adminUser, guestUser));
 
         mockMvc.perform(get("/auth/users"))
                 .andExpect(status().isOk())

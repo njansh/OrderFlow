@@ -4,7 +4,6 @@ import com.nadson.orderflow.modules.products.domain.Product;
 import com.nadson.orderflow.modules.products.domain.ProductRepository;
 import com.nadson.orderflow.modules.users.domain.Role;
 import com.nadson.orderflow.modules.users.domain.User;
-import com.nadson.orderflow.modules.users.domain.UserRepository;
 import com.nadson.orderflow.shared.exception.BusinessRuleException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,9 +24,6 @@ class ProductUseCasesTest {
     @Mock
     private ProductRepository productRepo;
 
-    @Mock
-    private UserRepository userRepo;
-
     private CreateProductUseCase createProductUseCase;
     private UpdateProductUseCase updateProductUseCase;
     private DeleteProductUseCase deleteProductUseCase;
@@ -38,9 +34,9 @@ class ProductUseCasesTest {
 
     @BeforeEach
     void setUp() {
-        createProductUseCase = new CreateProductUseCase(productRepo, userRepo);
-        updateProductUseCase = new UpdateProductUseCase(productRepo, userRepo);
-        deleteProductUseCase = new DeleteProductUseCase(productRepo, userRepo);
+        createProductUseCase = new CreateProductUseCase(productRepo);
+        updateProductUseCase = new UpdateProductUseCase(productRepo);
+        deleteProductUseCase = new DeleteProductUseCase(productRepo);
         getProductByIdUseCase = new GetProductByIdUseCase(productRepo);
 
         adminUser = User.createAdmin("Admin", "admin@orderflow.com", "passwordHash123");
@@ -49,7 +45,6 @@ class ProductUseCasesTest {
 
     @Test
     void shouldCreateProductWhenUserIsAdmin() {
-        when(userRepo.getUserById(adminUser.getId())).thenReturn(adminUser);
         when(productRepo.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         Product product = createProductUseCase.execute("X-Burger", new BigDecimal("25.00"), adminUser);
@@ -62,8 +57,6 @@ class ProductUseCasesTest {
 
     @Test
     void shouldThrowExceptionWhenNonAdminTriesToCreateProduct() {
-        when(userRepo.getUserById(attendantUser.getId())).thenReturn(attendantUser);
-
         assertThrows(BusinessRuleException.class, () ->
                 createProductUseCase.execute("X-Burger", new BigDecimal("25.00"), attendantUser)
         );
@@ -76,7 +69,6 @@ class ProductUseCasesTest {
         UUID productId = UUID.randomUUID();
         Product existingProduct = new Product(productId, "Old Name", new BigDecimal("10.00"));
 
-        when(userRepo.getUserById(adminUser.getId())).thenReturn(adminUser);
         when(productRepo.getProductById(productId)).thenReturn(existingProduct);
         when(productRepo.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -91,7 +83,6 @@ class ProductUseCasesTest {
         UUID productId = UUID.randomUUID();
         Product existingProduct = new Product(productId, "Burger", new BigDecimal("20.00"));
 
-        when(userRepo.getUserById(adminUser.getId())).thenReturn(adminUser);
         when(productRepo.getProductById(productId)).thenReturn(existingProduct);
 
         deleteProductUseCase.execute(productId, adminUser);

@@ -17,24 +17,16 @@ public class UpdateUserUseCase {
     }
 
     public User execute(UserUpdateInput input, User authenticatedUser) {
+        if (authenticatedUser == null) {
+            throw new BusinessRuleException("Authenticated user not found");
+        }
+
         var existingUser = repo.getUserById(input.id());
         if (existingUser == null) {
             throw new BusinessRuleException("User not found");
         }
 
-        var currentUser = repo.getUserById(authenticatedUser.getId());
-        if (currentUser == null) {
-            throw new BusinessRuleException("Authenticated user not found");
-        }
-
-        if (currentUser.getRole() != Role.ADMIN) {
-            if (!currentUser.getId().equals(existingUser.getId())) {
-                throw new BusinessRuleException("Users can only update their own profile.");
-            }
-            if (input.role() != existingUser.getRole()) {
-                throw new BusinessRuleException("Only admins can change user roles.");
-            }
-        }
+        authenticatedUser.requireCanUpdateProfile(existingUser, input.role());
 
         User updatedUser = existingUser.updateData(input.name(), input.email(), input.role());
 

@@ -1,12 +1,12 @@
 package com.nadson.orderflow.modules.orders.usecase;
 
 import com.nadson.orderflow.modules.orders.domain.Order;
+import com.nadson.orderflow.modules.orders.domain.OrderItem;
 import com.nadson.orderflow.modules.orders.domain.OrderRepository;
 import com.nadson.orderflow.modules.products.domain.Product;
 import com.nadson.orderflow.modules.products.domain.ProductRepository;
 import com.nadson.orderflow.modules.users.domain.Role;
 import com.nadson.orderflow.modules.users.domain.User;
-import com.nadson.orderflow.modules.users.domain.UserRepository;
 import com.nadson.orderflow.shared.exception.BusinessRuleException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,9 +32,6 @@ class OrderUseCasesTest {
     @Mock
     private ProductRepository productRepo;
 
-    @Mock
-    private UserRepository userRepo;
-
     private CreatOrderUseCase creatOrderUseCase;
     private GetOrderByIdUseCase getOrderByIdUseCase;
 
@@ -44,8 +41,8 @@ class OrderUseCasesTest {
 
     @BeforeEach
     void setUp() {
-        creatOrderUseCase = new CreatOrderUseCase(orderRepo, productRepo, userRepo);
-        getOrderByIdUseCase = new GetOrderByIdUseCase(orderRepo, userRepo);
+        creatOrderUseCase = new CreatOrderUseCase(orderRepo, productRepo);
+        getOrderByIdUseCase = new GetOrderByIdUseCase(orderRepo);
 
         attendantUser = new User(UUID.randomUUID(), "Attendant", "attendant@orderflow.com", "passwordHash123", Role.ATTENDANT);
         kitchenUser = new User(UUID.randomUUID(), "Kitchen Staff", "kitchen@orderflow.com", "passwordHash123", Role.KITCHEN);
@@ -54,7 +51,6 @@ class OrderUseCasesTest {
 
     @Test
     void shouldCreateOrderSuccessfullyAndCalculateTotal() {
-        when(userRepo.getUserById(attendantUser.getId())).thenReturn(attendantUser);
         when(productRepo.getProductById(product.getId())).thenReturn(product);
         when(orderRepo.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -72,8 +68,6 @@ class OrderUseCasesTest {
 
     @Test
     void shouldThrowExceptionWhenUserRoleCannotCreateOrder() {
-        when(userRepo.getUserById(kitchenUser.getId())).thenReturn(kitchenUser);
-
         List<CreatOrderUseCase.OrderInputItem> items = List.of(
                 new CreatOrderUseCase.OrderInputItem(product.getId(), 1)
         );
@@ -87,8 +81,6 @@ class OrderUseCasesTest {
 
     @Test
     void shouldThrowExceptionWhenOrderItemsAreEmpty() {
-        when(userRepo.getUserById(attendantUser.getId())).thenReturn(attendantUser);
-
         assertThrows(BusinessRuleException.class, () ->
                 creatOrderUseCase.execute(attendantUser, Collections.emptyList())
         );
@@ -99,10 +91,9 @@ class OrderUseCasesTest {
     @Test
     void shouldGetOrderByIdSuccessfully() {
         Order mockOrder = new Order(List.of(
-                new com.nadson.orderflow.modules.orders.domain.OrderItem(product.getId(), product.getName(), 1, product.getPrice())
+                new OrderItem(product.getId(), product.getName(), 1, product.getPrice())
         ));
 
-        when(userRepo.getUserById(attendantUser.getId())).thenReturn(attendantUser);
         when(orderRepo.getOrderById(mockOrder.getId())).thenReturn(mockOrder);
 
         Order result = getOrderByIdUseCase.execute(mockOrder.getId(), attendantUser);
