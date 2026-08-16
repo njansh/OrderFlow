@@ -13,23 +13,13 @@ import java.util.UUID;
 @Service
 public class UpdateOrderUseCase {
     private final OrderRepository repo;
-    private final UserRepository userRepo;
 
-    public UpdateOrderUseCase(OrderRepository repo, UserRepository userRepo) {
+    public UpdateOrderUseCase(OrderRepository repo) {
         this.repo = repo;
-        this.userRepo = userRepo;
     }
 
     public Order execute(UUID orderId, String newStatus, User authenticatedUser) {
         Order order = repo.getOrderById(orderId);
-        if (order == null) {
-            throw new BusinessRuleException("Order not found");
-        }
-
-        User user = userRepo.getUserById(authenticatedUser.getId());
-        if (user == null) {
-            throw new BusinessRuleException("User not found");
-        }
 
         OrderStatus statusEnum;
         try {
@@ -38,7 +28,7 @@ public class UpdateOrderUseCase {
             throw new BusinessRuleException("Invalid status: " + newStatus);
         }
 
-        order.changeStatus(statusEnum, user.getRole());
+        order.changeStatus(statusEnum, authenticatedUser.getRole());
 
         return repo.update(order);
     }

@@ -9,14 +9,13 @@ import com.nadson.orderflow.modules.orders.usecase.*;
 import com.nadson.orderflow.modules.users.domain.User;
 import com.nadson.orderflow.modules.users.domain.UserRepository;
 import com.nadson.orderflow.shared.exception.BusinessRuleException;
+import com.nadson.orderflow.shared.security.CurrentUserProvider;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,7 +32,8 @@ public class OrderController {
     private final UserRepository userRepository;
     private final ListOrderUseCase listOrderUseCase;
     private final GetOrderByStatusUseCase getOrderByStatusUseCase;
-    private final DeleteOrderUseCase deleteOrderUseCase; // Adicionado
+    private final DeleteOrderUseCase deleteOrderUseCase;
+    private final CurrentUserProvider currentUserProvider;
 
     public OrderController(
             CreatOrderUseCase creatOrderUseCase,
@@ -42,7 +42,7 @@ public class OrderController {
             UserRepository userRepository,
             ListOrderUseCase listOrderUseCase,
             GetOrderByStatusUseCase getOrderByStatusUseCase,
-            DeleteOrderUseCase deleteOrderUseCase
+            DeleteOrderUseCase deleteOrderUseCase, CurrentUserProvider currentUserProvider
     ) {
         this.creatOrderUseCase = creatOrderUseCase;
         this.getOrderByIdUseCase = getOrderByIdUseCase;
@@ -51,6 +51,7 @@ public class OrderController {
         this.listOrderUseCase = listOrderUseCase;
         this.getOrderByStatusUseCase = getOrderByStatusUseCase;
         this.deleteOrderUseCase = deleteOrderUseCase;
+        this.currentUserProvider = currentUserProvider;
     }
 
     @Operation(summary = "Create order", description = "Creates a new order with a list of items. Requires ATTENDANT or ADMIN role.")
@@ -62,7 +63,7 @@ public class OrderController {
     @ResponseStatus(HttpStatus.CREATED)
 
     public OrderResponse create(@RequestBody @Valid CreateOrderRequest request) {
-        User currentUser = getAuthenticatedUser();
+        User currentUser = currentUserProvider.getCurrentUser();
 
         List<CreatOrderUseCase.OrderInputItem> inputItems = request.items().stream()
                 .map(item -> new CreatOrderUseCase.OrderInputItem(item.productId(), item.quantity()))
@@ -75,7 +76,7 @@ public class OrderController {
     @Operation(summary = "Get order by ID", description = "Retrieves full order details by its UUID.")
     @GetMapping("/{id}")
     public OrderResponse getById(@PathVariable UUID id) {
-        User currentUser = getAuthenticatedUser();
+        User currentUser = currentUserProvider.getCurrentUser();
         Order order = getOrderByIdUseCase.execute(id, currentUser);
         return OrderResponse.fromDomain(order);
     }
@@ -83,7 +84,7 @@ public class OrderController {
     @Operation(summary = "List orders", description = "Lists all orders or filters by status (PENDING, PREPARING, OUT_FOR_DELIVERY, COMPLETED, CANCELED).")
     @GetMapping
     public List<OrderResponse> list(@RequestParam(required = false) String status) {
-        User currentUser = getAuthenticatedUser();
+        User currentUser = currentUserProvider.getCurrentUser();
         List<Order> orders;
 
         if (status != null && !status.isBlank()) {
@@ -106,7 +107,7 @@ public class OrderController {
             @PathVariable UUID id,
             @RequestBody @Valid UpdateOrderStatusRequest request
     ) {
-        User currentUser = getAuthenticatedUser();
+        User currentUser = currentUserProvider.getCurrentUser();
         Order updatedOrder = updateOrderUseCase.execute(id, request.status(), currentUser);
         return OrderResponse.fromDomain(updatedOrder);
     }
@@ -115,12 +116,7 @@ public class OrderController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id) {
-        User currentUser = getAuthenticatedUser();
+        User currentUser = currentUserProvider.getCurrentUser();
         deleteOrderUseCase.execute(id, currentUser);
-    }
+    }}
 
-    private User getAuthenticatedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return userRepository.getUserByEmail(authentication.getName());
-    }
-}

@@ -6,14 +6,13 @@ import com.nadson.orderflow.modules.products.infra.controller.dto.ProductRespons
 import com.nadson.orderflow.modules.products.usecase.*;
 import com.nadson.orderflow.modules.users.domain.User;
 import com.nadson.orderflow.modules.users.domain.UserRepository;
+import com.nadson.orderflow.shared.security.CurrentUserProvider;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +22,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/products")
 public class ProductController {
+    private final CurrentUserProvider currentUserProvider;
     private final CreateProductUseCase createProductUseCase;
     private final ListProductsUseCase listProductsUseCase;
     private final GetProductByIdUseCase getProductByIdUseCase;
@@ -32,7 +32,7 @@ public class ProductController {
     private final UserRepository userRepository;
 
     public ProductController(
-            CreateProductUseCase createProductUseCase,
+            CurrentUserProvider currentUserProvider, CreateProductUseCase createProductUseCase,
             ListProductsUseCase listProductsUseCase,
             GetProductByIdUseCase getProductByIdUseCase,
             GetProductByNameUseCase getProductByNameUseCase,
@@ -40,6 +40,7 @@ public class ProductController {
             UpdateProductUseCase updateProductUseCase,
             UserRepository userRepository
     ) {
+        this.currentUserProvider = currentUserProvider;
         this.createProductUseCase = createProductUseCase;
         this.listProductsUseCase = listProductsUseCase;
         this.getProductByIdUseCase = getProductByIdUseCase;
@@ -49,10 +50,6 @@ public class ProductController {
         this.userRepository = userRepository;
     }
 
-    private User getAuthenticatedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return userRepository.getUserByEmail(authentication.getName());
-    }
 
     @Operation(summary = "Create product", description = "Creates a new product in the catalog. Requires ADMIN role.")
     @ApiResponses({
@@ -62,7 +59,7 @@ public class ProductController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ProductResponse create(@RequestBody @Valid CreateProductRequest request) {
-        User currentUser = getAuthenticatedUser();
+        User currentUser = currentUserProvider.getCurrentUser();
         Product product = createProductUseCase.execute(request.name(), request.price(), currentUser);
         return new ProductResponse(product.getId(), product.getName(), product.getPrice());
     }
@@ -92,7 +89,7 @@ public class ProductController {
     @Operation(summary = "Update product", description = "Updates product name and price. Requires ADMIN role.")
     @PutMapping("/{id}")
     public ProductResponse update(@PathVariable UUID id, @RequestBody @Valid CreateProductRequest request) {
-        User currentUser = getAuthenticatedUser();
+        User currentUser = currentUserProvider.getCurrentUser();
         Product product = updateProductUseCase.execute(id, request.name(), request.price(), currentUser);
         return new ProductResponse(product.getId(), product.getName(), product.getPrice());
     }
@@ -101,7 +98,7 @@ public class ProductController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id) {
-        User currentUser = getAuthenticatedUser();
+        User currentUser = currentUserProvider.getCurrentUser();
         deleteProductUseCase.execute(id, currentUser);
     }
 }

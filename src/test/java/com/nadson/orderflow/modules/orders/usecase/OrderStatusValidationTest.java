@@ -40,7 +40,7 @@ class OrderStatusValidationTest {
 
     @BeforeEach
     void setUp() {
-        updateOrderUseCase = new UpdateOrderUseCase(orderRepo, userRepo);
+        updateOrderUseCase = new UpdateOrderUseCase(orderRepo);
 
         kitchenUser = new User(UUID.randomUUID(), "Kitchen", "kitchen@orderflow.com", "passwordHash123", Role.KITCHEN);
         deliveryUser = new User(UUID.randomUUID(), "Delivery", "delivery@orderflow.com", "passwordHash123", Role.DELIVERY);

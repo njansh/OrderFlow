@@ -14,7 +14,8 @@ public class ListUsersUseCase {
         this.repo = repo;
     }
 
-    public List<User> execute() {
+    public List<User> execute(User authenticatedUser) {
+        authenticatedUser.requireAdmin();
         return this.repo.listUsers();
     }
 

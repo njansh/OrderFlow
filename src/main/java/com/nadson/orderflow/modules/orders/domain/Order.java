@@ -73,7 +73,28 @@ public class Order {
 
         this.status = newStatus;
     }
+    public void validateAccess(Role role) {
+        if (role == Role.ADMIN) return;
 
+        switch (role) {
+            case DELIVERY -> {
+                if (this.status != OrderStatus.OUT_FOR_DELIVERY && this.status != OrderStatus.COMPLETED) {
+                    throw new BusinessRuleException("Delivery drivers can only access orders that are out for delivery or COMPLETED.");
+                }
+            }
+            case ATTENDANT -> {
+                if (this.status == OrderStatus.OUT_FOR_DELIVERY || this.status == OrderStatus.COMPLETED) {
+                    throw new BusinessRuleException("Attendants cannot access orders currently in the delivery process.");
+                }
+            }
+            case KITCHEN -> {
+                if (this.status != OrderStatus.PREPARING && this.status != OrderStatus.PENDING) {
+                    throw new BusinessRuleException("Kitchen staff can only access pending or preparing orders.");
+                }
+            }
+            case GUEST -> throw new BusinessRuleException("Guests do not have permission to view order details.");
+        }
+    }
     public UUID getId() {
         return id;
     }

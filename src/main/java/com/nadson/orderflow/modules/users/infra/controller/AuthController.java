@@ -6,8 +6,9 @@ import com.nadson.orderflow.modules.users.domain.UserRepository;
 import com.nadson.orderflow.modules.users.infra.controller.dto.*;
 import com.nadson.orderflow.modules.users.usecase.ListUsersUseCase;
 import com.nadson.orderflow.modules.users.usecase.SingUpUseCase;
-import com.nadson.orderflow.modules.users.usecase.UpdateUserUseCase;
+import com.nadson.orderflow.modules.users.usecase .UpdateUserUseCase;
 import com.nadson.orderflow.shared.exception.BusinessRuleException;
+import com.nadson.orderflow.shared.security.CurrentUserProvider;
 import com.nadson.orderflow.shared.security.TokenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -18,7 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,17 +28,20 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
+    private final CurrentUserProvider currentUserProvider;
     private final SingUpUseCase singUpUseCase;
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
-    private final UserRepository userRepository;
     private final UpdateUserUseCase updateUserUseCase;
     private final ListUsersUseCase listUsersUseCase;
+    private final UserRepository userRepository;
 
-    public AuthController(SingUpUseCase singUpUseCase,
+    public AuthController(CurrentUserProvider currentUserProvider, SingUpUseCase singUpUseCase,
                           AuthenticationManager authenticationManager,
                           TokenService tokenService,
-                          UserRepository userRepository, UpdateUserUseCase updateUserUseCase, ListUsersUseCase listUsersUseCase) {
+                          UserRepository userRepository,
+                          UpdateUserUseCase updateUserUseCase, ListUsersUseCase listUsersUseCase) {
+        this.currentUserProvider = currentUserProvider;
         this.singUpUseCase = singUpUseCase;
         this.authenticationManager = authenticationManager;
         this.tokenService = tokenService;
@@ -79,8 +82,7 @@ public class AuthController {
     @Operation(summary = "Current user profile", description = "Retrieves profile details of the currently authenticated user.")
     @GetMapping("/me")
     public UserResponse me() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userRepository.getUserByEmail(authentication.getName());
+        User user = currentUserProvider.getCurrentUser();
         return UserResponse.fromDomain(user);
     }
 
@@ -91,14 +93,9 @@ public class AuthController {
     })
     @GetMapping("/users")
     public List<UserResponse> listUsers() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = userRepository.getUserByEmail(authentication.getName());
+        User currentUser = currentUserProvider.getCurrentUser();
 
-        if (currentUser.getRole() != Role.ADMIN) {
-            throw new BusinessRuleException("Only admins can list all users.");
-        }
-
-        return listUsersUseCase.execute().stream()
+        return listUsersUseCase.execute(currentUser).stream()
                 .map(UserResponse::fromDomain)
                 .toList();
     }
@@ -106,8 +103,7 @@ public class AuthController {
     @Operation(summary = "Update user", description = "Updates user information or changes roles (ADMIN role required to update roles).")
     @PutMapping("/users")
     public UserResponse update(@RequestBody @Valid UpdateUserRequest request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = userRepository.getUserByEmail(authentication.getName());
+        User currentUser = currentUserProvider.getCurrentUser();
 
         UUID targetUserId = request.id() != null ? request.id() : currentUser.getId();
 

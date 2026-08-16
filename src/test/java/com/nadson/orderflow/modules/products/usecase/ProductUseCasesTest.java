@@ -38,9 +38,9 @@ class ProductUseCasesTest {
 
     @BeforeEach
     void setUp() {
-        createProductUseCase = new CreateProductUseCase(productRepo, userRepo);
-        updateProductUseCase = new UpdateProductUseCase(productRepo, userRepo);
-        deleteProductUseCase = new DeleteProductUseCase(productRepo, userRepo);
+        createProductUseCase = new CreateProductUseCase(productRepo);
+        updateProductUseCase = new UpdateProductUseCase(productRepo);
+        deleteProductUseCase = new DeleteProductUseCase(productRepo);
         getProductByIdUseCase = new GetProductByIdUseCase(productRepo);
 
         adminUser = User.createAdmin("Admin", "admin@orderflow.com", "passwordHash123");

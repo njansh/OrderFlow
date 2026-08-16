@@ -44,8 +44,8 @@ class OrderUseCasesTest {
 
     @BeforeEach
     void setUp() {
-        creatOrderUseCase = new CreatOrderUseCase(orderRepo, productRepo, userRepo);
-        getOrderByIdUseCase = new GetOrderByIdUseCase(orderRepo, userRepo);
+        creatOrderUseCase = new CreatOrderUseCase(orderRepo, productRepo);
+        getOrderByIdUseCase = new GetOrderByIdUseCase(orderRepo);
 
         attendantUser = new User(UUID.randomUUID(), "Attendant", "attendant@orderflow.com", "passwordHash123", Role.ATTENDANT);
         kitchenUser = new User(UUID.randomUUID(), "Kitchen Staff", "kitchen@orderflow.com", "passwordHash123", Role.KITCHEN);
