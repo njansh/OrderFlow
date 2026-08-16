@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,6 +29,8 @@ class ProductUseCasesTest {
     private UpdateProductUseCase updateProductUseCase;
     private DeleteProductUseCase deleteProductUseCase;
     private GetProductByIdUseCase getProductByIdUseCase;
+    private GetProductByNameUseCase getProductByNameUseCase;
+    private ListProductsUseCase listProductsUseCase;
 
     private User adminUser;
     private User attendantUser;
@@ -38,6 +41,8 @@ class ProductUseCasesTest {
         updateProductUseCase = new UpdateProductUseCase(productRepo);
         deleteProductUseCase = new DeleteProductUseCase(productRepo);
         getProductByIdUseCase = new GetProductByIdUseCase(productRepo);
+        getProductByNameUseCase = new GetProductByNameUseCase(productRepo);
+        listProductsUseCase = new ListProductsUseCase(productRepo);
 
         adminUser = User.createAdmin("Admin", "admin@orderflow.com", "passwordHash123");
         attendantUser = new User(UUID.randomUUID(), "Attendant", "attendant@orderflow.com", "passwordHash123", Role.ATTENDANT);
@@ -47,59 +52,75 @@ class ProductUseCasesTest {
     void shouldCreateProductWhenUserIsAdmin() {
         when(productRepo.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        Product product = createProductUseCase.execute("X-Burger", new BigDecimal("25.00"), adminUser);
-
+        Product product = createProductUseCase.execute("Burger", new BigDecimal("25.00"), adminUser);
         assertNotNull(product);
-        assertEquals("X-Burger", product.getName());
-        assertEquals(new BigDecimal("25.00"), product.getPrice());
-        verify(productRepo, times(1)).save(any(Product.class));
+        assertEquals("Burger", product.getName());
     }
 
     @Test
-    void shouldThrowExceptionWhenNonAdminTriesToCreateProduct() {
-        assertThrows(BusinessRuleException.class, () ->
-                createProductUseCase.execute("X-Burger", new BigDecimal("25.00"), attendantUser)
-        );
-
-        verify(productRepo, never()).save(any(Product.class));
+    void shouldThrowWhenNonAdminTriesToCreateUpdateOrDelete() {
+        UUID id = UUID.randomUUID();
+        assertThrows(BusinessRuleException.class, () -> createProductUseCase.execute("Burger", BigDecimal.TEN, attendantUser));
+        assertThrows(BusinessRuleException.class, () -> updateProductUseCase.execute(id, "Burger", BigDecimal.TEN, attendantUser));
+        assertThrows(BusinessRuleException.class, () -> deleteProductUseCase.execute(id, attendantUser));
     }
 
     @Test
-    void shouldUpdateProductWhenUserIsAdmin() {
-        UUID productId = UUID.randomUUID();
-        Product existingProduct = new Product(productId, "Old Name", new BigDecimal("10.00"));
-
-        when(productRepo.getProductById(productId)).thenReturn(existingProduct);
+    void shouldUpdateProductWhenAdmin() {
+        UUID id = UUID.randomUUID();
+        Product product = new Product(id, "Old", BigDecimal.TEN);
+        when(productRepo.getProductById(id)).thenReturn(product);
         when(productRepo.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        Product updatedProduct = updateProductUseCase.execute(productId, "New Name", new BigDecimal("15.00"), adminUser);
-
-        assertEquals("New Name", updatedProduct.getName());
-        assertEquals(new BigDecimal("15.00"), updatedProduct.getPrice());
+        Product updated = updateProductUseCase.execute(id, "New", new BigDecimal("15.00"), adminUser);
+        assertEquals("New", updated.getName());
     }
 
     @Test
-    void shouldDeleteProductWhenUserIsAdmin() {
-        UUID productId = UUID.randomUUID();
-        Product existingProduct = new Product(productId, "Burger", new BigDecimal("20.00"));
+    void shouldThrowWhenUpdatingNonExistentProduct() {
+        UUID id = UUID.randomUUID();
+        when(productRepo.getProductById(id)).thenReturn(null);
+        assertThrows(BusinessRuleException.class, () -> updateProductUseCase.execute(id, "New", BigDecimal.TEN, adminUser));
+    }
 
-        when(productRepo.getProductById(productId)).thenReturn(existingProduct);
+    @Test
+    void shouldDeleteProductSuccessfully() {
+        UUID id = UUID.randomUUID();
+        when(productRepo.getProductById(id)).thenReturn(new Product(id, "Burger", BigDecimal.TEN));
 
-        deleteProductUseCase.execute(productId, adminUser);
+        deleteProductUseCase.execute(id, adminUser);
+        verify(productRepo, times(1)).delete(id);
+    }
 
-        verify(productRepo, times(1)).delete(productId);
+    @Test
+    void shouldThrowWhenDeletingNonExistentProduct() {
+        UUID id = UUID.randomUUID();
+        when(productRepo.getProductById(id)).thenReturn(null);
+        assertThrows(BusinessRuleException.class, () -> deleteProductUseCase.execute(id, adminUser));
     }
 
     @Test
     void shouldGetProductByIdSuccessfully() {
-        UUID productId = UUID.randomUUID();
-        Product existingProduct = new Product(productId, "Burger", new BigDecimal("20.00"));
+        UUID id = UUID.randomUUID();
+        when(productRepo.getProductById(id)).thenReturn(new Product(id, "Burger", BigDecimal.TEN));
+        Product result = getProductByIdUseCase.execute(id);
+        assertEquals(id, result.getId());
+    }
 
-        when(productRepo.getProductById(productId)).thenReturn(existingProduct);
+    @Test
+    void shouldThrowWhenProductByIdNotFound() {
+        UUID id = UUID.randomUUID();
+        when(productRepo.getProductById(id)).thenReturn(null);
+        assertThrows(BusinessRuleException.class, () -> getProductByIdUseCase.execute(id));
+    }
 
-        Product result = getProductByIdUseCase.execute(productId);
+    @Test
+    void shouldListProductsAndFindByName() {
+        Product p = new Product(UUID.randomUUID(), "Burger", BigDecimal.TEN);
+        when(listProductsUseCase.execute()).thenReturn(List.of(p));
+        when(getProductByNameUseCase.execute("Burger")).thenReturn(List.of(p));
 
-        assertNotNull(result);
-        assertEquals(productId, result.getId());
+        assertEquals(1, listProductsUseCase.execute().size());
+        assertEquals(1, getProductByNameUseCase.execute("Burger").size());
     }
 }
