@@ -32,57 +32,57 @@ Newly registered users start as GUEST and must be promoted by an ADMIN before re
 ### Authentication
 - [x] #5 Create User Entity
 - [x] #6 Create Users Migration
-- [ ] #7 Implement Signup
-- [ ] #8 Implement Login
-- [ ] #9 Implement Current User Endpoint
+- [x] #7 Implement Signup
+- [x] #8 Implement Login
+- [x] #9 Implement Current User Endpoint
 
 ### Products
-- [ ] #10 Create Product Entity
-- [ ] #11 Create Products Migration
-- [ ] #12 Create Product
-- [ ] #13 List Products
-- [ ] #14 Get Product By Id
-- [ ] #15 Update Product
-- [ ] #16 Delete Product
+- [x] #10 Create Product Entity
+- [x] #11 Create Products Migration
+- [x] #12 Create Product
+- [x] #13 List Products
+- [x] #14 Get Product By Id
+- [x] #15 Update Product
+- [x] #16 Delete Product
 
 ### Orders
-- [ ] #17 Create Order Entity
-- [ ] #18 Create OrderItem Entity
-- [ ] #19 Create Orders Migration
-- [ ] #20 Create Order Items Migration
-- [ ] #21 Implement Create Order
-- [ ] #22 Implement List Orders
-- [ ] #23 Implement Get Order
-- [ ] #24 Implement Orders By Status
+- [x] #17 Create Order Entity
+- [x] #18 Create OrderItem Entity
+- [x] #19 Create Orders Migration
+- [x] #20 Create Order Items Migration
+- [x] #21 Implement Create Order
+- [x] #22 Implement List Orders
+- [x] #23 Implement Get Order
+- [x] #24 Implement Orders By Status
 
 ### Order Workflow
-- [ ] #25 Create Order Status Enum
-- [ ] #26 Implement Update Order Status
-- [ ] #27 Validate Status Transitions
+- [x] #25 Create Order Status Enum
+- [x] #26 Implement Update Order Status
+- [x] #27 Validate Status Transitions
 
 ### Authorization
-- [ ] #28 Create Role Enum
-- [ ] #29 Restrict Product Management To Admin
-- [ ] #30 Restrict Status Changes By Role
+- [x] #28 Create Role Enum
+- [x] #29 Restrict Product Management To Admin
+- [x] #30 Restrict Status Changes By Role
 
 ### Error Handling
-- [ ] #31 Create Custom Exceptions
-- [ ] #32 Create Global Exception Handler
+- [x] #31 Create Custom Exceptions
+- [x] #32 Create Global Exception Handler
 
 ### Testing
-- [ ] #33 Unit Tests Authentication
-- [ ] #34 Unit Tests Products
-- [ ] #35 Unit Tests Orders
-- [ ] #36 Unit Tests Status Validation
-- [ ] #37 Controller Tests
+- [x] #33 Unit Tests Authentication
+- [x] #34 Unit Tests Products
+- [x] #35 Unit Tests Orders
+- [x] #36 Unit Tests Status Validation
+- [x] #37 Controller Tests
 
 ### Documentation
-- [ ] #38 Configure OpenAPI / Swagger
-- [ ] #39 Document Endpoints
-- [ ] #40 Create README
+- [x] #38 Configure OpenAPI / Swagger
+- [x] #39 Document Endpoints
+- [x] #40 Create README
 
 ### Final Hardening
-- [ ] #41 Code Review
-- [ ] #42 Refactor Duplicated Code
-- [ ] #43 Verify Test Coverage > 80%
-- [ ] #44 MVP Release v1.0
+- [x] #41 Code Review
+- [x] #42 Refactor Duplicated Code
+- [x] #43 Verify Test Coverage > 80%
+- [x] #44 MVP Release v1.0
